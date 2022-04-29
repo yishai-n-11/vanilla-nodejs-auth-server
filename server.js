@@ -15,6 +15,28 @@ const server = http
     console.log("method", method);
     console.log("url", url);
     if (url === "/") {
+      // check if there is a token, and validate it
+      const cookie = req.headers.cookie;
+      console.log("cookie", cookie);
+      if (!cookie) {
+        res.writeHead(303, {
+          location: "http://localhost:5454/login",
+        });
+        res.end();
+        return;
+      }
+      const token = cookie.split("=")[1];
+      try {
+        const dec = jwt.decode(token);
+        console.log("dec", dec);
+      } catch (error) {
+        console.log("error", error);
+        res.writeHead(303, {
+          location: "http://localhost:5454/login",
+        });
+        res.end();
+        return;
+      }
       res.writeHead(200, { "content-type": "text/html" });
       const stream = fs.createReadStream(homePath);
       stream.pipe(res);
