@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/yishai-n-11/vanilla-nodejs-auth-server#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "jsonwebtoken": "^8.5.1"
   }
 }

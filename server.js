@@ -4,10 +4,12 @@ const fs = require("fs");
 const path = require("path");
 const secret = "some secret";
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const homePath = path.join(__dirname + "/./views/home.html");
 const loginPath = path.join(__dirname + "/./views/login.html");
 const registerPath = path.join(__dirname + "/./views/register.html");
+const usersPath = path.join(__dirname + "/./data/users.json");
 
 const server = http
   .createServer(async (req, res) => {
@@ -20,7 +22,7 @@ const server = http
       console.log("cookie", cookie);
       if (!cookie) {
         res.writeHead(303, {
-          location: "http://localhost:5454/login",
+          location: "http://localhost:5454/register",
         });
         res.end();
         return;
@@ -32,7 +34,7 @@ const server = http
       } catch (error) {
         console.log("error", error);
         res.writeHead(303, {
-          location: "http://localhost:5454/login",
+          location: "http://localhost:5454/register",
         });
         res.end();
         return;
@@ -53,12 +55,33 @@ const server = http
         const data = Buffer.concat(buffs).toString("utf-8");
         let searchParams = new URLSearchParams(data);
         const username = searchParams.get("username");
-        const passwrod = searchParams.get("password");
-        res.writeHead(303, {
-          location: "http://localhost:5454/",
+        const password = searchParams.get("password");
+        // load stored users, compare username and stored hashed password
+        const users = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
+        console.log("users", users);
+        let isAuth = false;
+        users.forEach((user) => {
+          console.log("user in loop", user);
+          if (user.username === username) {
+            const storedPass = user.password;
+            const isTrue = bcrypt.compareSync(password, storedPass);
+            console.log("isTrue", isTrue);
+            isAuth = isTrue;
+          }
         });
-        res.end();
-        return;
+        if (isAuth) {
+          res.writeHead(303, {
+            location: "http://localhost:5454/",
+          });
+          res.end();
+          return;
+        } else {
+          res.writeHead(303, {
+            location: "http://localhost:5454/register",
+          });
+          res.end();
+          return;
+        }
       }
     } else if (url === "/register") {
       if (method === "GET") {
@@ -73,7 +96,19 @@ const server = http
         const data = Buffer.concat(buffs).toString("utf-8");
         let searchParams = new URLSearchParams(data);
         const username = searchParams.get("username");
-        const passwrod = searchParams.get("password");
+        const password = searchParams.get("password");
+        // store user name and hashed password in data
+        const storedUsers = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
+        console.log("storedUsers", storedUsers);
+        bcrypt.hash(password, 10, (err, hashed) => {
+          if (err) {
+            console.log("err", err);
+          } else {
+            console.log("hashed", hashed);
+            storedUsers.push({ username, password: hashed });
+            fs.writeFileSync(usersPath, JSON.stringify(storedUsers));
+          }
+        });
         const token = jwt.sign(
           {
             user: username,
