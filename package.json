@@ -1,0 +1,24 @@
+{
+  "name": "vanilla-nodejs-auth-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yishai-n-11/vanilla-nodejs-auth-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yishai-n-11/vanilla-nodejs-auth-server/issues"
+  },
+  "homepage": "https://github.com/yishai-n-11/vanilla-nodejs-auth-server#readme",
+  "dependencies": {
+    "jsonwebtoken": "^8.5.1"
+  }
+}
